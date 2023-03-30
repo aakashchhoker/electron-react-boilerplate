@@ -14,6 +14,9 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+const connectDB = require("./config/db");
+
+
 
 class AppUpdater {
   constructor() {
@@ -24,6 +27,8 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+
+
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -56,7 +61,38 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+async function getDB() {
+  let db = await connectDB();
+  return db;
+}
+
+let db;
+
 const createWindow = async () => {
+
+  let globalCollection;
+  db = await  getDB();
+  console.log(db,"xxxxx")
+  // async function getDB() {
+  //   let db = await connectDB();
+  //   return db;
+  // }
+
+  // (async function () {
+  //   let db = await getDB();
+  //   db.listCollections().toArray(function (err, collection) {
+  //     if (err) {
+  //       console.log("allCollectionsErros", err);
+  //     }
+  //     globalCollection = db.collection("user");
+  //     console.log("collection=======", collection);
+  //   });
+  // })();
+
+  module.exports = {
+    globalCollection,
+  };
+ 
   if (isDebug) {
     await installExtensions();
   }
